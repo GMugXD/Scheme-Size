@@ -50,18 +50,6 @@ public class BuildingTools {
         });
     }
 
-    public void drop(int x, int y) {
-        if (!MessageQueue.drop()) return;
-
-        Tile tile = world.tile(x, y);
-        if (tile == null || tile.build == null) return;
-
-        ItemModule items = tile.build.items;
-        if (items == null || items.empty()) return;
-        else if (items.has(Items.sand)) drop(tile, Items.sand);
-        else if (items.has(Items.coal)) drop(tile, Items.coal);
-        else drop(tile, items.first());
-    }
 
     private void drop(Tile tile, Item item) {
         Call.requestItem(player, tile.build, item, units.maxAccepted);
@@ -107,17 +95,6 @@ public class BuildingTools {
         for (int y = by - ibsize + 1; y <= by + ibsize - 1; y += ibsize) iterate(world.tile(bx - ibsize, y));
     } // bruhness is everywhere bruhness is everywhere bruhness is everywhere bruhness is everywhere bruhness
 
-    public void connect(int x, int y, Cons2<Integer, Integer> callback) {
-        if (block() == null) return;
-
-        Building power = Units.closestBuilding(player.team(), x * tilesize, y * tilesize, 999999f, build -> {
-            return build.power != null && ((build.tileX() < x - size || build.tileX() > x + size) || (build.tileY() < y - size || build.tileY() > y + size));
-        }); // search for a power build that is not in the zone
-
-        if (power == null) return;
-        int px = power.tileX(), py = power.tileY();
-        callback.get(x > px ? px - 1 : px + 1, y > py ? py - 1 : py + 1); // magic
-    }
 
     public void fill(int x1, int y1, int x2, int y2, int maxLength) {
         if (block() == null) return;

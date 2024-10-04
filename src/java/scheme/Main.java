@@ -1,4 +1,4 @@
-package scheme;
+pa ckage scheme;
 
 import arc.graphics.g2d.Draw;
 import arc.util.Log;
@@ -13,11 +13,8 @@ import mindustry.ui.CoreItemsDisplay;
 import mindustry.world.Tile;
 import mindustry.world.blocks.distribution.Router;
 import mindustry.world.blocks.logic.LogicDisplay;
-import scheme.moded.ModedBinding;
-import scheme.moded.ModedGlyphLayout;
 import scheme.moded.ModedSchematics;
 import scheme.tools.MessageQueue;
-import scheme.tools.RainbowTeam;
 import scheme.ui.MapResizeFix;
 
 import static arc.Core.*;
@@ -39,16 +36,8 @@ public class Main extends Mod {
 
     @Override
     public void init() {
-        Backdoor.load();
-        ServerIntegration.load();
         ClajIntegration.load();
-        ModedBinding.load();
-        ModedGlyphLayout.load();
         SchemeVars.load();
-        SchemeUpdater.load();
-        MapResizeFix.load();
-        MessageQueue.load();
-        RainbowTeam.load();
 
         ui.schematics = schemas; // do it before build hudfrag
         ui.listfrag = listfrag;
@@ -70,15 +59,6 @@ public class Main extends Mod {
 
         if (m_schematics.requiresDialog) ui.showOkText("@rename.name", "@rename.text", () -> {});
         if (settings.getBool("welcome")) ui.showOkText("@welcome.name", "@welcome.text", () -> {});
-        if (settings.getBool("check4update")) SchemeUpdater.check();
-
-        if (SchemeUpdater.installed("miner-tools")) { // very sad but they are incompatible
-            ui.showOkText("@incompatible.name", "@incompatible.text", () -> {});
-            ui.hudGroup.fill(cont -> { // crutch to prevent crash
-                cont.visible = false;
-                cont.add(new CoreItemsDisplay());
-            });
-        }
 
         try { // run main.js without the wrapper to access the constant values in the game console
             Scripts scripts = mods.getScripts();
@@ -89,22 +69,6 @@ public class Main extends Mod {
         Blocks.distributor.buildType = () -> ((Router) Blocks.distributor).new RouterBuild() {
             @Override
             public boolean canControl() { return true; }
-
-            @Override
-            public Building getTileTarget(Item item, Tile from, boolean set) {
-                Building target = super.getTileTarget(item, from, set);
-
-                if (unit != null && isControlled() && unit.isShooting()) {
-                    float angle = angleTo(unit.aimX(), unit.aimY());
-                    Tmp.v1.set(block.size * tilesize, 0f).rotate(angle).add(this);
-
-                    Building other = world.buildWorld(Tmp.v1.x, Tmp.v1.y);
-                    if (other != null && other.acceptItem(this, item)) target = other;
-                }
-
-                return target;
-            }
-        };
 
         content.blocks().each(block -> block instanceof LogicDisplay, block -> block.buildType = () -> ((LogicDisplay) block).new LogicDisplayBuild() {
             @Override
